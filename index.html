@@ -2,52 +2,53 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Conexión entre páginas</title>
+  <title>Texto Compartido en Tiempo Real</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      text-align: center;
-      margin-top: 50px;
-    }
-    input {
-      padding: 10px;
-      width: 250px;
-      font-size: 16px;
-    }
-    h1 {
-      margin-top: 30px;
-      font-size: 24px;
-      color: #333;
-    }
+    body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; }
+    input { padding: 10px; width: 250px; font-size: 16px; }
+    h1 { margin-top: 30px; font-size: 24px; color: #333; }
   </style>
 </head>
 <body>
-  <h2>Texto compartido entre pestañas</h2>
-  <input type="text" id="texto" placeholder="Escribe algo aquí...">
+  <h2>Texto compartido en tiempo real 🌍</h2>
+  <input type="text" id="texto" placeholder="Escribe algo...">
   <h1 id="mostrar"></h1>
 
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js"></script>
+
   <script>
+    // ⚠️ Reemplaza con la config de tu proyecto Firebase
+    const firebaseConfig = {
+      apiKey: "TU_API_KEY",
+      authDomain: "TU_PROYECTO.firebaseapp.com",
+      databaseURL: "https://TU_PROYECTO.firebaseio.com",
+      projectId: "TU_PROYECTO",
+      storageBucket: "TU_PROYECTO.appspot.com",
+      messagingSenderId: "123456789",
+      appId: "1:123456789:web:abc123"
+    };
+
+    // Inicializar Firebase
+    const app = firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
     const input = document.getElementById("texto");
     const mostrar = document.getElementById("mostrar");
 
-    // Mostrar el último valor guardado si existe
-    if (localStorage.getItem("textoCompartido")) {
-      mostrar.textContent = localStorage.getItem("textoCompartido");
-      input.value = localStorage.getItem("textoCompartido");
-    }
-
-    // Cuando el usuario escribe, se guarda en localStorage
-    input.addEventListener("input", () => {
-      localStorage.setItem("textoCompartido", input.value);
-      mostrar.textContent = input.value;
+    // Escuchar cambios en tiempo real
+    db.ref("textoCompartido").on("value", snapshot => {
+      const valor = snapshot.val() || "";
+      mostrar.textContent = valor;
+      if (input !== document.activeElement) {
+        input.value = valor;
+      }
     });
 
-    // Escuchar cambios desde otras pestañas
-    window.addEventListener("storage", (event) => {
-      if (event.key === "textoCompartido") {
-        mostrar.textContent = event.newValue;
-        input.value = event.newValue;
-      }
+    // Cuando alguien escribe, guardar en la BD
+    input.addEventListener("input", () => {
+      db.ref("textoCompartido").set(input.value);
     });
   </script>
 </body>
