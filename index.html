@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Conexión entre páginas</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin-top: 50px;
+    }
+    input {
+      padding: 10px;
+      width: 250px;
+      font-size: 16px;
+    }
+    h1 {
+      margin-top: 30px;
+      font-size: 24px;
+      color: #333;
+    }
+  </style>
+</head>
+<body>
+  <h2>Texto compartido entre pestañas</h2>
+  <input type="text" id="texto" placeholder="Escribe algo aquí...">
+  <h1 id="mostrar"></h1>
+
+  <script>
+    const input = document.getElementById("texto");
+    const mostrar = document.getElementById("mostrar");
+
+    // Mostrar el último valor guardado si existe
+    if (localStorage.getItem("textoCompartido")) {
+      mostrar.textContent = localStorage.getItem("textoCompartido");
+      input.value = localStorage.getItem("textoCompartido");
+    }
+
+    // Cuando el usuario escribe, se guarda en localStorage
+    input.addEventListener("input", () => {
+      localStorage.setItem("textoCompartido", input.value);
+      mostrar.textContent = input.value;
+    });
+
+    // Escuchar cambios desde otras pestañas
+    window.addEventListener("storage", (event) => {
+      if (event.key === "textoCompartido") {
+        mostrar.textContent = event.newValue;
+        input.value = event.newValue;
+      }
+    });
+  </script>
+</body>
+</html>
